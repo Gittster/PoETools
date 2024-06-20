@@ -18,6 +18,7 @@
                 var importCode = document.getElementById("importCode").value.trim();
                 var xmlDocument = fetchXmlFromImportCode(importCode);
                 if (xmlDocument) {
+                    console.log("if xml document");
                     var xmlString = new XMLSerializer().serializeToString(xmlDocument);
                     document.getElementById("xmlOutput").innerHTML = "<pre>" + xmlString + "</pre>";
                 } else {
@@ -33,13 +34,16 @@
             try {
                 importCode = importCode.replace(/-/g, '+').replace(/_/g, '/');
                 var decodedData = atob(importCode);
+                console.log("successfully decoded data");
                 var data = new Uint8Array(decodedData.length);
                 for (var i = 0; i < decodedData.length; ++i) {
                     data[i] = decodedData.charCodeAt(i);
                 }
                 var decompressedData = pako.inflate(data, { to: 'string' });
+                console.log("successfully decombressed data");
                 var parser = new DOMParser();
                 var xmlDocument = parser.parseFromString(decompressedData, "application/xml");
+                console.log("successfully parsed data");
                 return xmlDocument;
             } catch (error) {
                 console.error("Error while decoding or parsing XML:", error);
