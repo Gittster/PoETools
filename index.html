@@ -41,6 +41,7 @@
                 var xmlDocument = fetchXmlFromImportCode(importCode);
                 if (xmlDocument) {
                     var xmlString = new XMLSerializer().serializeToString(xmlDocument);
+                    console.log(xmlString);
                     document.getElementById("xmlOutput").innerHTML = "<pre>" + xmlString + "</pre>";
                 } else {
                     document.getElementById("xmlOutput").innerHTML = "<p>Failed to decode import code.</p>";
