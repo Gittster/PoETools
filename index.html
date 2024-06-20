@@ -16,10 +16,6 @@
         function decodeImportCode() {
             try {
                 var importCode = document.getElementById("importCode").value.trim();
-                if (!isValidBase64String(importCode)) {
-                    console.error("Invalid base64 input:", importCode);
-                    return; // Or handle the error appropriately
-                }
                 var xmlDocument = fetchXmlFromImportCode(importCode);
                 if (xmlDocument) {
                     var xmlString = new XMLSerializer().serializeToString(xmlDocument);
