@@ -2,59 +2,59 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Path of Building Import Code Decoder</title>
-    <!-- Include pako.js for zlib decompression -->
+    <title>Path of Building Item Details</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/1.0.11/pako.min.js"></script>
     <style>
-        /* Optional: CSS styles for textarea */
-        #importCode {
+        .textbox-container {
+            margin-bottom: 10px;
+        }
+        .textbox-label {
+            display: block;
+            font-weight: bold;
+        }
+        .textbox {
             width: 100%;
-            height: 200px; /* Adjust height as needed */
-            padding: 10px;
+            padding: 5px;
             font-family: 'Courier New', Courier, monospace;
             font-size: 14px;
             line-height: 1.5;
             border: 1px solid #ccc;
-            resize: vertical; /* Allow vertical resizing */
-        }
-        #xmlOutput {
-            margin-top: 10px;
-            padding: 10px;
-            border: 1px solid #ccc;
-            white-space: pre-wrap; /* Preserve whitespace and wrap lines */
-            font-family: 'Courier New', Courier, monospace;
-            font-size: 14px;
-            overflow-x: auto; /* Add horizontal scroll if needed */
         }
     </style>
 </head>
 <body>
-    <h1>Path of Building Import Code Decoder</h1>
+    <h1>Path of Building Item Details</h1>
     <textarea id="importCode" placeholder="Paste your base64-encoded import code here"></textarea><br>
-    <button onclick="decodeImportCode()">Decode</button><br>
-    <div id="xmlOutput"></div>
+    <button onclick="decodeAndDisplay()">Decode and Display</button><br>
+    <div id="itemDetails"></div>
 
     <script>
-        function decodeImportCode() {
+        function decodeAndDisplay() {
             try {
                 var importCode = document.getElementById("importCode").value.trim();
                 var xmlDocument = fetchXmlFromImportCode(importCode);
                 if (xmlDocument) {
-                    var xmlString = new XMLSerializer().serializeToString(xmlDocument);
-                    console.log(xmlString);
-                    document.getElementById("xmlOutput").innerHTML = "<pre>" + xmlString + "</pre>";
+                    var item = xmlDocument.querySelector('Item');
+                    if (item) {
+                        displayItemDetails(item);
+                    } else {
+                        document.getElementById("itemDetails").innerHTML = "<p>No item found in the XML.</p>";
+                    }
                 } else {
-                    document.getElementById("xmlOutput").innerHTML = "<p>Failed to decode import code.</p>";
+                    document.getElementById("itemDetails").innerHTML = "<p>Failed to decode import code.</p>";
                 }
             } catch (error) {
                 console.error("Error while decoding import code:", error);
-                document.getElementById("xmlOutput").innerHTML = "<p>Error: " + error.message + "</p>";
+                document.getElementById("itemDetails").innerHTML = "<p>Error: " + error.message + "</p>";
             }
         }
 
         function fetchXmlFromImportCode(importCode) {
             try {
                 importCode = importCode.replace(/-/g, '+').replace(/_/g, '/');
+                while (importCode.length % 4 !== 0) {
+                    importCode += '=';
+                }
                 var decodedData = atob(importCode);
                 var data = new Uint8Array(decodedData.length);
                 for (var i = 0; i < decodedData.length; ++i) {
@@ -68,6 +68,40 @@
                 console.error("Error while decoding or parsing XML:", error);
                 return null;
             }
+        }
+
+        function displayItemDetails(item) {
+            var itemDetails = document.getElementById('itemDetails');
+            itemDetails.innerHTML = '';  // Clear previous content
+
+            var properties = item.textContent.trim().split('\n');
+            properties.forEach(property => {
+                if (property.trim()) {
+                    var [label, value] = property.split(': ');
+                    if (value) {
+                        createTextbox(itemDetails, label, value);
+                    }
+                }
+            });
+        }
+
+        function createTextbox(container, label, value) {
+            var div = document.createElement('div');
+            div.className = 'textbox-container';
+
+            var labelElement = document.createElement('label');
+            labelElement.className = 'textbox-label';
+            labelElement.textContent = label;
+
+            var input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'textbox';
+            input.value = value;
+            input.readOnly = true;
+
+            div.appendChild(labelElement);
+            div.appendChild(input);
+            container.appendChild(div);
         }
     </script>
 </body>
